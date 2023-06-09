@@ -61,12 +61,12 @@ public class VacationPackage {
      * @param paquete1 el paquete de vacaciones a verificar
      */
 	public void verifySpot(VacationPackage paquete1) {
-		if(paquete1.getDestination().equals("Paris")) {
-			paquete1.setCost(paquete1.getCost() + 500);
-		}
-		else if(paquete1.getDestination().equals("New York City")) {
-			paquete1.setCost(paquete1.getCost() + 600);
-		}
+	    String destination = paquete1.getDestination();
+	    if ("Paris".equalsIgnoreCase(destination)) {
+	        paquete1.setCost(paquete1.getCost() + 500);
+	    } else if ("New York City".equalsIgnoreCase(destination)) {
+	        paquete1.setCost(paquete1.getCost() + 600);
+	    }
 	}
 	/**
      * Verifica el descuento aplicable al paquete de vacaciones según el número de viajeros y actualiza el costo.

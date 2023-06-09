@@ -1,12 +1,31 @@
 // Copyright (C) 2020
 // All rights reserved
 package Estimator;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 
 public class Main {
-    // CHECKSTYLE:OFF
+	 private Main() {
+	        // Constructor privado para evitar la creación de instancias
+	    }
+	
+	private static final double ALL_INCLUSIVE_PACKAGE_COST = 200;
+	private static final double ADVENTURE_ACTIVITIES_PACKAGE_COST = 150;
+	private static final double SPA_AND_WELLNESS_PACKAGE_COST = 100;
+
+
+	/**
+	 * Método principal
+	 * 
+	 *
+	 * @param args Los argumentos de la línea de comandos (no se utilizan en este caso)
+	 */
     public static void main(String[] args) {
-    // CHECKSTYLE:ON
+    	
+
         Scanner scanner = new Scanner(System.in);
 
         try {
@@ -20,8 +39,14 @@ public class Main {
 
             System.out.print("Ingrese los dias que va a vacacionar: ");
             int estadia = scanner.nextInt();
+            
+            scanner.nextLine();
 
-            scanner.close();
+			List<String> complementos = seleccionarComplementos(scanner);
+
+
+			scanner.close();
+
 
             VacationPackage paquete1;
 
@@ -30,14 +55,23 @@ public class Main {
                 paquete1.verifySpot(paquete1);
                 paquete1.verifyDiscount(paquete1);
                 paquete1.verifyPenalty(paquete1);
+                
+                double costoComplementos = calcularCostoComplementos(complementos, personas);
+				paquete1.setCost(paquete1.getCost() + costoComplementos);
 
                 if (paquete1.getCost() < 0) {
                     System.out.println("-1"); // Imprimir -1 si los datos de entrada no son válidos
                 } else {
                     int totalCost = (int) paquete1.getCost();
-                    System.out.println("Total cost of the vacation package: " + totalCost);
+                    System.out.println("Costo Total del paquete de viajes: " + totalCost);
                 }
+                
                 System.out.println(paquete1.toString());
+                
+                System.out.println("Paquetes seleccionados:");
+				for (String complemento : complementos) {
+					System.out.println(complemento);
+				}
             } else {
                 System.out.println("-1"); // Imprimir -1 si los datos de entrada no son válidos
             }
@@ -53,11 +87,15 @@ public class Main {
      * @return true si el destino es válido, false de lo contrario
      */
     public static boolean validarDestino(String destino) {
-        // Convertir el destino a minúsculas y capitalizar la primera letra
-        String destinoCapitalizado = destino.substring(0, 1).toUpperCase() + destino.substring(1).toLowerCase();
+        if (destino == null || destino.isEmpty()) {
+            return false;
+        }
 
-        // Validar si el destino es "Paris" o "New York City"
-        if (destinoCapitalizado.equals("Paris") || destinoCapitalizado.equals("New York City")) {
+        // Convertir el destino a minúsculas y capitalizar la primera letra
+        String destinoCapitalizado = capitalizeFirstLetter(destino.toLowerCase(Locale.ROOT));
+
+        // Validar si el destino es "Paris" o "New York City" sin importar las mayúsculas o minúsculas
+        if ("Paris".equalsIgnoreCase(destinoCapitalizado) || "New York City".equalsIgnoreCase(destinoCapitalizado)) {
             return true;
         }
 
@@ -69,6 +107,9 @@ public class Main {
 
         return false;
     }
+
+    
+
 
     /**
      * Valida el número de personas ingresado.
@@ -97,10 +138,85 @@ public class Main {
         
         for (String palabra : palabras) {
             if (!palabra.isEmpty()) {
-                String palabraCapitalizada = palabra.substring(0, 1).toUpperCase() + palabra.substring(1).toLowerCase();
+                String palabraCapitalizada = capitalizeFirstLetter(palabra);
                 resultado.append(palabraCapitalizada).append(" ");
             }
         }
+        
         return resultado.toString().trim();
     }
+
+
+    // Método para capitalizar la primera letra de una palabra
+    private static String capitalizeFirstLetter(String palabra) {
+        if (palabra == null || palabra.isEmpty()) {
+            return palabra;
+        }
+
+        String firstLetter = palabra.substring(0, 1).toUpperCase(Locale.ROOT);
+        String restOfString = palabra.substring(1).toLowerCase(Locale.ROOT);
+
+        return firstLetter + restOfString;
+    }
+    private static List<String> seleccionarComplementos(Scanner scanner) {
+		List<String> complementosDisponibles = new ArrayList<>(Arrays.asList(
+				"All-Inclusive Package",
+				"Adventure Activities Package",
+				"Spa and Wellness Package"
+		));
+
+		List<String> complementosSeleccionados = new ArrayList<>();
+
+		System.out.println("Seleccione los complementos opcionales:");
+
+		int opcion;
+		do {
+			System.out.println("Complementos disponibles:");
+			for (int i = 0; i < complementosDisponibles.size(); i++) {
+				System.out.println((i + 1) + ". " + complementosDisponibles.get(i));
+			}
+			System.out.println("0. No seleccionar más complementos");
+
+			System.out.print("Ingrese su opción: ");
+			opcion = scanner.nextInt();
+			scanner.nextLine(); // Consumir la nueva línea después de leer la opción
+
+			if (opcion >= 1 && opcion <= complementosDisponibles.size()) {
+				String complementoSeleccionado = complementosDisponibles.get(opcion - 1);
+				complementosSeleccionados.add(complementoSeleccionado);
+				complementosDisponibles.remove(complementoSeleccionado);
+				System.out.println("Complemento seleccionado: " + complementoSeleccionado);
+			} else if (opcion != 0) {
+				System.out.println("Opción inválida. Por favor, seleccione una opción válida.");
+			}
+		} while (opcion != 0);
+
+		return complementosSeleccionados;
+	}
+
+    private static double calcularCostoComplementos(List<String> complementos, int personas) {
+        double costoTotal = 0;
+
+        for (String complemento : complementos) {
+            switch (complemento) {
+                case "All-Inclusive Package":
+                    costoTotal += ALL_INCLUSIVE_PACKAGE_COST * personas;
+                    break;
+                case "Adventure Activities Package":
+                    costoTotal += ADVENTURE_ACTIVITIES_PACKAGE_COST * personas;
+                    break;
+                case "Spa and Wellness Package":
+                    costoTotal += SPA_AND_WELLNESS_PACKAGE_COST * personas;
+                    break;
+                default:
+                    // Manejar casos inesperados o de fallback
+                    System.out.println("Invalid package selected: " + complemento);
+                    break;
+            }
+        }
+
+        return costoTotal;
+    }
+
+    
 }
